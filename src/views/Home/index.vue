@@ -1,32 +1,208 @@
 <template>
-    <div style="height: 400%;transition: .5s all;" :style="`height:${totalPage * 100}%`">
-        <div class="section" :style="`height: ${1 / totalPage * 100}%;`" :data-index="index" v-for="(_, index) in totalPage"
-            :key="index" @mousewheel="scroll($event)">
-            <div class="card" :class="randomSize()" v-for="(_, index) in len" :key="index">
-                <div class="icon" @click="clickEvent()">
-                    <img src="/image/icon.png">
+    <div style="height: 400%;transition: .5s all;" :style="`height:${pageList.length * 100}%`" id="page-list">
+        <div class="page" :style="`height: ${1 / pageList.length * 100}%;`" :data-index="index"
+            v-for="(item, index) in pageList" :key="index">
+            <div class="section" @mousewheel="scroll($event)">
+                <div class="card" :class="child.size" v-for="(child, index1) in item.children" :key="index1">
+                    <div class="icon" @click="clickEvent()">
+                        <img :src="child.icon">
+                    </div>
+                    <p class="text text-over unseleced">
+                        {{ child.text }}
+                    </p>
                 </div>
-                <p class="text text-over unseleced">
-                    图标{{ index + 1 }}
-                </p>
+                <div class="card default">
+                    <div class="icon add" @click="pushNewItem(index)">
+                        +
+                    </div>
+                </div>
             </div>
         </div>
+
+    </div>
+    <div class="home-sidebar unseleced">
+        <div class="home-sidedock">
+            <div class="sidebar-item">
+                <i class="iconfont icon-user"></i>
+            </div>
+            <div class="line"></div>
+            <div class="sidebar-item-box">
+                <div class="sidebar-item" :class="activeIndex === index ? 'active' : ''" @click="activeIndex = index"
+                    v-for="(item, index) in pageList" :key="index">
+                    {{ index }}
+                </div>
+            </div>
+            <div class="line"></div>
+            <div class="sidebar-item" @click="pushNewPage()">
+                +
+            </div>
+        </div>
+
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, nextTick } from 'vue';
+import { onMounted, ref, nextTick, watch } from 'vue';
 import { ElNotification } from 'element-plus';
 
-const len = ref(0);
-
-const randomLen = () => {
-    len.value = Math.floor(Math.random() * 10) + 5;
+interface PageList {
+    children: PageItem[];
+    title: string;
+    icon: string;
+}
+interface PageItem {
+    size: string;
+    icon: string;
+    text: string;
 }
 
-const totalPage = ref(4);
-
 const activeIndex = ref(0);
+
+const pageList = ref([] as PageList[]);
+
+pageList.value = [
+    {
+        title: '1',
+        icon: '/image/icon.png',
+        children: [
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标1'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标2'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标3'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标4'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标5'
+            },
+        ]
+    },
+    {
+        title: '2',
+        icon: '/image/icon.png',
+        children: [
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标1'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标2'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标3'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标4'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标5'
+            },
+        ]
+    },
+    {
+        title: '3',
+        icon: '/image/icon.png',
+        children: [
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标1'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标2'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标3'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标4'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标5'
+            },
+        ]
+    },
+    {
+        title: '3',
+        icon: '/image/icon.png',
+        children: [
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标1'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标2'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标3'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标4'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标5'
+            },
+        ]
+    },
+]
+
+const pushNewPage = () => {
+    pageList.value.push({
+        children: [],
+        title: '',
+        icon: ''
+    })
+}
+
+const pushNewItem = (index: number) => {
+    console.log(index);
+    pageList.value[index].children.push({
+        size: 'default',
+        icon: '/image/icon.png',
+        text: '图标' + (pageList.value[index].children.length + 1)
+    })
+}
 
 // 节流 防止滚动过快
 const flag = ref(false);
@@ -35,21 +211,14 @@ const scroll = (event: WheelEvent) => {
     if (flag.value) {
         return;
     }
-    const dom = doms.value[activeIndex.value];
+    const dom = doms.value[activeIndex.value].firstChild as HTMLElement;
     // 获取元素的滚动高度
     nextTick(() => {
-        dom.style.visibility = '';
         if ((dom.scrollHeight) === (dom.scrollTop + dom.clientHeight) && event.deltaY > 0) {
-            if (activeIndex.value === 4 - 1) {
+            if (activeIndex.value === pageList.value.length - 1) {
                 return;
             }
             activeIndex.value++;
-            doms.value[activeIndex.value].style.visibility = '';
-            nextTick(() => {
-                doms.value[activeIndex.value].scrollTop = 0;
-                dom.parentElement.style.transform = `translateY(-${activeIndex.value * 1 / totalPage.value * 100}%)`;
-                dom.style.visibility = 'hidden';
-            })
             flag.value = true;
             setTimeout(() => {
                 flag.value = false;
@@ -59,12 +228,6 @@ const scroll = (event: WheelEvent) => {
                 return;
             }
             activeIndex.value--;
-            doms.value[activeIndex.value].style.visibility = '';
-            nextTick(() => {
-                doms.value[activeIndex.value].scrollTop = 0;
-                dom.parentElement.style.transform = `translateY(-${activeIndex.value * 1 / totalPage.value * 100}%)`;
-                dom.style.visibility = 'hidden';
-            })
             flag.value = true;
             setTimeout(() => {
                 flag.value = false;
@@ -73,21 +236,54 @@ const scroll = (event: WheelEvent) => {
     })
 }
 
-const randomSize = () => {
-    const size = ['default', 'middle', 'large', 'bigest']
-    return size[Math.floor(Math.random() * size.length)]
-    // return size[0]
-}
+watch(activeIndex, (val) => {
+    const dom = doms.value[val];
+    (dom.firstChild as HTMLElement).style.overflow = "hidden";
+    nextTick(() => {
+        (doms.value[val].firstChild as HTMLElement).scrollTop = 0;
+        dom.parentElement.style.transform = `translateY(-${val * 1 / pageList.value.length * 100}%)`;
+    })
+
+    // 让.sidebar-item-box 滚动到对应的位置
+    nextTick(() => {
+        document.querySelector(".sidebar-item-box").scrollTo({
+            top: val * 1 / pageList.value.length * document.querySelector(".sidebar-item-box").scrollHeight,
+            behavior: "smooth"
+        })
+    })
+    // 延迟聚焦元素
+    setTimeout(() => {
+        (dom.firstChild as HTMLElement).style.overflow = "";
+        (dom.firstChild as HTMLElement).focus();
+    }, 300)
+})
+
+const oldLen = ref(0);
+
+watch(pageList.value, (val) => {
+    if (val.length > oldLen.value) {
+        nextTick(() => {
+            getAllSection();
+            activeIndex.value = val.length - 1;
+            oldLen.value = val.length;
+            nextTick(() => {
+                document.querySelector(".sidebar-item-box").scrollTo({
+                    top: document.querySelector(".sidebar-item-box").scrollHeight,
+                    behavior: "smooth"
+                })
+            })
+        })
+    }
+}, { deep: true })
 
 const doms = ref([] as HTMLElement[]);
 
-const init = () => {
-    for (let i = 0; i < 28; i++) {
-        document.querySelectorAll(".section").forEach((item: any) => {
-            const dom = item;
-            doms.value.push(dom);
-        })
-    }
+const getAllSection = async () => {
+    const set = new Set();
+    document.getElementById("page-list").querySelectorAll(".page").forEach((item: any) => {
+        set.add(item);
+    })
+    doms.value = <any>Array.from(set);
 }
 
 const clickEvent = () => {
@@ -99,13 +295,80 @@ const clickEvent = () => {
 }
 
 onMounted(() => {
-    randomLen();
-    init();
+    getAllSection();
+    oldLen.value = pageList.value.length;
 })
 
 </script>
 
 <style lang="less" scoped>
+.home-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100px;
+    background-color: transparent;
+    z-index: 2;
+    padding: 20px;
+    overflow: auto;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .home-sidedock {
+        width: 52px;
+        height: 650px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 10px;
+    }
+
+    .line {
+        width: 30px;
+        height: 2px;
+        background-color: var(--color-gray);
+        opacity: .5;
+        margin: 10px;
+        border-radius: 10px;
+    }
+
+    .sidebar-item-box {
+        width: 100%;
+        height: 475px;
+        text-align: center;
+        overflow: auto;
+    }
+
+    .sidebar-item {
+        width: 40px;
+        height: 40px;
+        background-color: transparent;
+        border-radius: 10px;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        font-size: 20px;
+        color: var(--color-gray);
+        margin: 10px auto;
+
+
+        &:hover,
+        &.active {
+            background-color: #ffffff26;
+        }
+    }
+}
+
 .section {
     left: 0;
     right: 0;
@@ -121,6 +384,7 @@ onMounted(() => {
     grid-auto-flow: row dense;
     grid-template-columns: repeat(auto-fill, var(--icon-width-full));
     justify-content: center;
+    max-height: 100vh;
     overflow: auto;
 
     // 换行 
@@ -178,6 +442,23 @@ onMounted(() => {
             cursor: pointer;
             transition: all 0.3s;
             overflow: hidden;
+            text-align: center;
+
+            &.add {
+                background-color: rgba(255, 255, 255, 0.3);
+                color: var(--color-white);
+                font-size: 25px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: normal;
+                color: var(--color-gray);
+
+                &:hover {
+                    background-color: hsla(0, 0%, 100%, .5) !important;
+                    color: rgba(0, 0, 0, .9) !important;
+                }
+            }
 
             &:hover {
                 transform: scale(1.05);

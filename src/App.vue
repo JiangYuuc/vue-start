@@ -9,8 +9,7 @@
 
 <style lang="less">
 #cover-image {
-  background-image: url(https://file.jyab.cn/image/2023-05-19/d2f508ef-3b62-41f5-8077-13433831b5ed.jpg);
-  background-blend-mode: lighten;
+  background-image: url(https://file.jyab.cn/image/2023-05-19/27d33837-a008-4f01-a8f2-b332c7ef6442.jpg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
