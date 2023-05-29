@@ -1,0 +1,41 @@
+@import './base.css';
+
+#app {
+  height: 100vh;
+}
+
+:root {
+  --icon-size: 72px;
+  --icon-size-middle: calc(var(--icon-size) * 2 + var(--icon-padding-y) * 4);
+  --icon-size-small: calc(var(--icon-size) * 3 + var(--icon-padding-y) * 6);
+  --icon-size-bigest: calc(var(--icon-size) * 4 + var(--icon-padding-y) * 12);
+  --icon-padding: 60px;
+  --icon-padding-x: 30px;
+  --icon-padding-y: 15px;
+  --icon-width-full: calc(var(--icon-size) + var(--icon-padding));
+  --color-white: #fff;
+  --color-black: #000;
+  --color-gray: #ccc;
+  --color-gray-dark: #999;
+}
+
+.text-over {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  display: -webkit-box;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.unseleced {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
