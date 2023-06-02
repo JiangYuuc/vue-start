@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4093565 */
-  src: url('iconfont.ttf?t=1685372127996') format('truetype');
+  src: url('iconfont.ttf?t=1685712054032') format('truetype');
 }
 
 .iconfont {
@@ -9,6 +9,30 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-add:before {
+  content: "\e633";
+}
+
+.icon-biying:before {
+  content: "\e62e";
+}
+
+.icon-baidu:before {
+  content: "\e8cb";
+}
+
+.icon-guge:before {
+  content: "\e664";
+}
+
+.icon-caidaniconshouyehui:before {
+  content: "\e60b";
+}
+
+.icon-xiaochengxu:before {
+  content: "\e619";
 }
 
 .icon-user:before {

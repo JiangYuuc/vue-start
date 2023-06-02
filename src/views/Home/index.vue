@@ -1,17 +1,19 @@
 <template>
+    <JyInput />
+
     <div style="height: 400%;transition: .5s all;" :style="`height:${pageList.length * 100}%`" id="page-list">
         <div class="page" :style="`height: ${1 / pageList.length * 100}%;`" :data-index="index"
             v-for="(item, index) in pageList" :key="index">
-            <div class="section" @mousewheel="scroll($event)">
-                <div class="card" :class="child.size" v-for="(child, index1) in item.children" :key="index1">
+            <div class="section" @mousewheel.stop="scroll($event)">
+                <div class="card unseleced" :class="child.size" v-for="(child, index1) in item.children" :key="index1">
                     <div class="icon" @click="clickEvent()">
                         <img :src="child.icon">
                     </div>
-                    <p class="text text-over unseleced">
+                    <p class="text text-over ">
                         {{ child.text }}
                     </p>
                 </div>
-                <div class="card default">
+                <div class="card default unseleced">
                     <div class="icon add" @click="pushNewItem(index)">
                         +
                     </div>
@@ -29,7 +31,7 @@
             <div class="sidebar-item-box">
                 <div class="sidebar-item" :class="activeIndex === index ? 'active' : ''" @click="activeIndex = index"
                     v-for="(item, index) in pageList" :key="index">
-                    {{ index }}
+                    <i class="iconfont" :class="item.icon"></i>
                 </div>
             </div>
             <div class="line"></div>
@@ -44,6 +46,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, nextTick, watch } from 'vue';
 import { ElNotification } from 'element-plus';
+import JyInput from '@/components/JyInput/index.vue';
 
 interface PageList {
     children: PageItem[];
@@ -63,15 +66,15 @@ const pageList = ref([] as PageList[]);
 pageList.value = [
     {
         title: '1',
-        icon: '/image/icon.png',
+        icon: 'icon-caidaniconshouyehui',
         children: [
             {
-                size: 'default',
+                size: 'bigest',
                 icon: '/image/icon.png',
                 text: '图标1'
             },
             {
-                size: 'default',
+                size: 'middle',
                 icon: '/image/icon.png',
                 text: '图标2'
             },
@@ -81,12 +84,12 @@ pageList.value = [
                 text: '图标3'
             },
             {
-                size: 'default',
+                size: 'middle',
                 icon: '/image/icon.png',
                 text: '图标4'
             },
             {
-                size: 'default',
+                size: 'large',
                 icon: '/image/icon.png',
                 text: '图标5'
             },
@@ -94,7 +97,38 @@ pageList.value = [
     },
     {
         title: '2',
-        icon: '/image/icon.png',
+        icon: 'icon-xiaochengxu',
+        children: [
+            {
+                size: 'bigest',
+                icon: '/image/icon.png',
+                text: '图标1'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标2'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标3'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标4'
+            },
+            {
+                size: 'default',
+                icon: '/image/icon.png',
+                text: '图标5'
+            },
+        ]
+    },
+    {
+        title: '3',
+        icon: 'icon-xiaochengxu',
         children: [
             {
                 size: 'default',
@@ -125,38 +159,7 @@ pageList.value = [
     },
     {
         title: '3',
-        icon: '/image/icon.png',
-        children: [
-            {
-                size: 'default',
-                icon: '/image/icon.png',
-                text: '图标1'
-            },
-            {
-                size: 'default',
-                icon: '/image/icon.png',
-                text: '图标2'
-            },
-            {
-                size: 'default',
-                icon: '/image/icon.png',
-                text: '图标3'
-            },
-            {
-                size: 'default',
-                icon: '/image/icon.png',
-                text: '图标4'
-            },
-            {
-                size: 'default',
-                icon: '/image/icon.png',
-                text: '图标5'
-            },
-        ]
-    },
-    {
-        title: '3',
-        icon: '/image/icon.png',
+        icon: 'icon-xiaochengxu',
         children: [
             {
                 size: 'default',
@@ -191,7 +194,7 @@ const pushNewPage = () => {
     pageList.value.push({
         children: [],
         title: '',
-        icon: ''
+        icon: 'icon-xiaochengxu'
     })
 }
 
@@ -214,7 +217,7 @@ const scroll = (event: WheelEvent) => {
     const dom = doms.value[activeIndex.value].firstChild as HTMLElement;
     // 获取元素的滚动高度
     nextTick(() => {
-        if ((dom.scrollHeight) === (dom.scrollTop + dom.clientHeight) && event.deltaY > 0) {
+        if ((dom.scrollHeight) === Math.floor(dom.scrollTop + dom.clientHeight) && event.deltaY > 0) {
             if (activeIndex.value === pageList.value.length - 1) {
                 return;
             }

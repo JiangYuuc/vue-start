@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.1.2",
+    "axios": "^1.4.0",
     "babel-eslint": "^10.1.0",
     "element-plus": "^2.3.5",
     "less": "^4.1.3",
