@@ -20,6 +20,15 @@
   --color-gray-dark: #999;
 }
 
+@media screen and (max-width: 700px) {
+  :root {
+    --icon-width-full: 60px;
+    --icon-padding-x: 0px;
+    --icon-padding-y: 5px;
+    --icon-size: 60px;
+  }
+}
+
 .text-over {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;

@@ -4,10 +4,11 @@
     <div style="height: 400%;transition: .5s all;" :style="`height:${pageList.length * 100}%`" id="page-list">
         <div class="page" :style="`height: ${1 / pageList.length * 100}%;`" :data-index="index"
             v-for="(item, index) in pageList" :key="index">
-            <div class="section" @mousewheel.stop="scroll($event)">
-                <div class="card unseleced" :class="child.size" v-for="(child, index1) in item.children" :key="index1">
-                    <div class="icon" @click="clickEvent()">
-                        <img :src="child.icon">
+            <div class="section" @mousewheel="scroll($event)">
+                <div class="card unseleced" @mousedown="mousedown" :class="child.size"
+                    v-for="(child, index1) in item.children" :key="index1" :data-index="index1">
+                    <div class="icon">
+                        <img :src="child.icon" draggable="false">
                     </div>
                     <p class="text text-over ">
                         {{ child.text }}
@@ -189,6 +190,50 @@ pageList.value = [
         ]
     },
 ]
+let x = 0;
+let y = 0;
+
+const mousedown = (event: MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    // 获取点击时的时间
+    x = event.clientX;
+    y = event.clientY;
+    if (target) {
+        setTimeout(() => {
+            // 创建一个元素 复制target的所有属性
+            const clone = target.cloneNode(true) as HTMLElement;
+            clone.classList.add('drag');
+            target.classList.add('hide');
+            clone.addEventListener('mousemove', mousemove);
+            clone.addEventListener('mouseup', mouseup);
+            clone.style.position = "absolute"
+            clone.style.left = `${event.clientX - target.clientWidth / 2}px`;
+            clone.style.top = `${event.clientY - target.clientHeight / 2}px`;
+            clone.style.zIndex = '999999';
+            document.getElementById('app')?.appendChild(clone);
+            return;
+        }, 100);
+    }
+}
+
+const mousemove = (event: MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+        target.style.transform = `translate(${event.clientX - x}px, ${event.clientY - y}px)`;
+        // 判断元素是否经过类名带有card元素（有很多） 如果经过则将隐藏的元素移到 card元素的前面
+        // card 不能包括target
+    }
+}
+const mouseup = (event: MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    if (target) {
+        target.removeEventListener('mousemove', mousemove);
+        target.remove();
+        document.querySelectorAll('.hide').forEach(item => {
+            item.classList.remove('hide');
+        })
+    }
+}
 
 const pushNewPage = () => {
     pageList.value.push({
@@ -199,7 +244,6 @@ const pushNewPage = () => {
 }
 
 const pushNewItem = (index: number) => {
-    console.log(index);
     pageList.value[index].children.push({
         size: 'default',
         icon: '/image/icon.png',
@@ -286,7 +330,7 @@ const getAllSection = async () => {
     document.getElementById("page-list").querySelectorAll(".page").forEach((item: any) => {
         set.add(item);
     })
-    doms.value = <any>Array.from(set);
+    doms.value = Array.from(set) as any;
 }
 
 const clickEvent = () => {
@@ -304,7 +348,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .home-sidebar {
     position: fixed;
     left: 0;
@@ -372,6 +416,15 @@ onMounted(() => {
     }
 }
 
+.page {
+    position: relative;
+    left: 0;
+    right: 0;
+    width: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 .section {
     left: 0;
     right: 0;
@@ -382,103 +435,140 @@ onMounted(() => {
     z-index: 1;
     padding-top: 25vh;
     padding-bottom: 240px;
-    max-width: 1200px;
     display: grid;
     grid-auto-flow: row dense;
     grid-template-columns: repeat(auto-fill, var(--icon-width-full));
     justify-content: center;
     max-height: 100vh;
-    overflow: auto;
+    overflow-y: auto;
+    width: 100%;
 
-    // 换行 
-    .card {
-        grid-column: span 1;
-        grid-row: span 1;
-        padding: var(--icon-padding-y) var(--icon-padding-x);
+    @media screen and (max-width: 700px) {
+        & {
+            grid-template-columns: repeat(4, var(--icon-width-full));
+            justify-content: space-evenly;
 
-        &.middle {
-            grid-column: span 2;
-            grid-row: span 1;
-
-            .icon {
-                width: var(--icon-size-middle);
-            }
-        }
-
-        &.large {
-            grid-column: span 2;
-            grid-row: span 2;
-
-            .icon {
-                width: var(--icon-size-middle);
-                height: var(--icon-size-middle);
-            }
-        }
-
-        &.bigest {
-            grid-column: span 4;
-            grid-row: span 2;
-
-            .icon {
-                width: var(--icon-size-bigest);
-                height: var(--icon-size-middle);
-            }
-        }
-
-        &.default {
-            grid-column: span 1;
-            grid-row: span 1;
-
-            .icon {
-                img {
-                    display: block;
+            .card {
+                &.bigest {
+                    .icon {
+                        width: 100% !important;
+                    }
                 }
             }
         }
+    }
 
-        .icon {
-            width: var(--icon-size);
-            height: var(--icon-size);
-            background-color: var(--color-white);
-            border-radius: 20px;
-            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s;
-            overflow: hidden;
-            text-align: center;
+    @media screen and (max-width: 440px) {
+        & {
+            grid-template-columns: repeat(2, var(--icon-width-full));
+        }
+    }
 
-            &.add {
-                background-color: rgba(255, 255, 255, 0.3);
-                color: var(--color-white);
-                font-size: 25px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                font-weight: normal;
-                color: var(--color-gray);
+}
 
-                &:hover {
-                    background-color: hsla(0, 0%, 100%, .5) !important;
-                    color: rgba(0, 0, 0, .9) !important;
-                }
-            }
+.card {
+    grid-column: span 1;
+    grid-row: span 1;
+    padding: var(--icon-padding-y) var(--icon-padding-x);
 
-            &:hover {
-                transform: scale(1.05);
-                box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
-            }
+    &.drag {
+        cursor: move;
 
-            img {
-                display: none;
-            }
+        .icon:hover {
+            transform: translateY(0) !important;
         }
 
         .text {
-            padding-top: 10px;
-            font-size: 14px;
-            color: var(--color-white);
-            text-align: center;
+            display: none;
         }
+    }
+
+    &.hide {
+        opacity: 0;
+    }
+
+    &.middle {
+        grid-column: span 2;
+        grid-row: span 1;
+
+        .icon {
+            width: var(--icon-size-middle);
+        }
+    }
+
+    &.large {
+        grid-column: span 2;
+        grid-row: span 2;
+
+        .icon {
+            width: var(--icon-size-middle);
+            height: var(--icon-size-middle);
+        }
+    }
+
+    &.bigest {
+        grid-column: span 4;
+        grid-row: span 2;
+
+        .icon {
+            width: var(--icon-size-bigest);
+            height: var(--icon-size-middle);
+        }
+    }
+
+    &.default {
+        grid-column: span 1;
+        grid-row: span 1;
+
+        .icon {
+            img {
+                display: block;
+            }
+        }
+    }
+
+    .icon {
+        width: var(--icon-size);
+        height: var(--icon-size);
+        background-color: var(--color-white);
+        border-radius: 20px;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s;
+        overflow: hidden;
+        text-align: center;
+
+        &.add {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: var(--color-white);
+            font-size: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: normal;
+            color: var(--color-gray);
+
+            &:hover {
+                background-color: hsla(0, 0%, 100%, .5) !important;
+                color: rgba(0, 0, 0, .9) !important;
+            }
+        }
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            display: none;
+        }
+    }
+
+    .text {
+        padding-top: 10px;
+        font-size: 14px;
+        color: var(--color-white);
+        text-align: center;
     }
 }
 </style>

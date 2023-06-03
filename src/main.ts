@@ -8,6 +8,8 @@ import router from './router'; // 引入路由
 
 import "element-plus/dist/index.css"; // 引入element-plus样式
 
+import "default-passive-events";
+
 const app = createApp(App)
 
 app.use(createPinia())

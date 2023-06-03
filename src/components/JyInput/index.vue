@@ -106,14 +106,14 @@ const getSuggest = async () => {
 .input-box {
     width: 70%;
     max-width: 600px;
-    height: 60px;
+    height: 50px;
     position: fixed;
     top: 120px;
     left: 0;
     right: 0;
     margin: auto;
     border-radius: 15px;
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.75);
     display: flex;
     align-items: center;
     z-index: 9999;
