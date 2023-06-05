@@ -5,9 +5,9 @@
         <div class="page" :style="`height: ${1 / pageList.length * 100}%;`" :data-index="index"
             v-for="(item, index) in pageList" :key="index">
             <div class="section" @mousewheel="scroll($event)">
-                <div class="card unseleced" @mousedown="mousedown" :class="child.size"
-                    v-for="(child, index1) in item.children" :key="index1" :data-index="index1">
-                    <div class="icon">
+                <div class="card unseleced" :class="child.size" v-for="(child, index1) in item.children" :key="index1"
+                    :data-index="index1">
+                    <div class="icon" @mousedown="mousedown" @mouseup="clickEvent">
                         <img :src="child.icon" draggable="false">
                     </div>
                     <p class="text text-over ">
@@ -21,10 +21,9 @@
                 </div>
             </div>
         </div>
-
     </div>
-    <div class="home-sidebar unseleced">
-        <div class="home-sidedock">
+    <div class="home-sidebar unseleced" @mouseenter="mouseenter" @mouseleave="mouseleave">
+        <div class="home-sidedock" v-show="showHomeSidebar" ref="homeSidebar">
             <div class="sidebar-item">
                 <i class="iconfont icon-user"></i>
             </div>
@@ -40,7 +39,7 @@
                 +
             </div>
         </div>
-
+        <i class="iconfont icon-setting"></i>
     </div>
 </template>
 
@@ -190,16 +189,20 @@ pageList.value = [
         ]
     },
 ]
+
 let x = 0;
 let y = 0;
+let timer: string | number | NodeJS.Timeout = null;
+let isClick = false;
+const showHomeSidebar = ref(false);
 
 const mousedown = (event: MouseEvent) => {
-    const target = event.currentTarget as HTMLElement;
+    const target = (event.currentTarget as HTMLElement).parentElement;
     // 获取点击时的时间
     x = event.clientX;
     y = event.clientY;
     if (target) {
-        setTimeout(() => {
+        timer = setTimeout(() => {
             // 创建一个元素 复制target的所有属性
             const clone = target.cloneNode(true) as HTMLElement;
             clone.classList.add('drag');
@@ -211,8 +214,11 @@ const mousedown = (event: MouseEvent) => {
             clone.style.top = `${event.clientY - target.clientHeight / 2}px`;
             clone.style.zIndex = '999999';
             document.getElementById('app')?.appendChild(clone);
+            isClick = false;
+            mouseenter();
             return;
         }, 100);
+        isClick = true;
     }
 }
 
@@ -221,7 +227,6 @@ const mousemove = (event: MouseEvent) => {
     if (target) {
         target.style.transform = `translate(${event.clientX - x}px, ${event.clientY - y}px)`;
         // 判断元素是否经过类名带有card元素（有很多） 如果经过则将隐藏的元素移到 card元素的前面
-        // card 不能包括target
     }
 }
 const mouseup = (event: MouseEvent) => {
@@ -232,7 +237,28 @@ const mouseup = (event: MouseEvent) => {
         document.querySelectorAll('.hide').forEach(item => {
             item.classList.remove('hide');
         })
+        mouseleave();
     }
+}
+
+let showHomeSidebarTimer: string | number | NodeJS.Timeout = null;
+let showHomeSidebarTimer2: string | number | NodeJS.Timeout = null;
+const homeSidebar = ref(null as unknown as HTMLElement);
+
+const mouseenter = () => {
+    homeSidebar.value.classList.remove('show');
+    clearTimeout(showHomeSidebarTimer2);
+    clearTimeout(showHomeSidebarTimer);
+    showHomeSidebar.value = true;
+}
+
+const mouseleave = () => {
+    showHomeSidebarTimer = setTimeout(() => {
+        homeSidebar.value.classList.add('show')
+        showHomeSidebarTimer2 = setTimeout(() => {
+            showHomeSidebar.value = false;
+        }, 450)
+    }, 1000);
 }
 
 const pushNewPage = () => {
@@ -334,11 +360,14 @@ const getAllSection = async () => {
 }
 
 const clickEvent = () => {
-    ElNotification.success({
-        message: '点击事件',
-        showClose: false,
-        duration: 1000
-    })
+    if (isClick) {
+        clearTimeout(timer);
+        ElNotification.success({
+            message: '点击事件',
+            showClose: false,
+            duration: 1000
+        })
+    }
 }
 
 onMounted(() => {
@@ -365,15 +394,29 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
 
+    .icon-setting {
+        font-size: 25px;
+        color: var(--color-white);
+        margin-bottom: 20px;
+        cursor: pointer;
+        position: absolute;
+        bottom: 30px;
+    }
+
     .home-sidedock {
         width: 52px;
-        height: 650px;
+        height: 500px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         background-color: rgba(0, 0, 0, 0.4);
         border-radius: 10px;
+        animation: showHomeSidebarLeft .5s;
+
+        &.show {
+            animation: hideHomeSidebarLeft .5s;
+        }
     }
 
     .line {
@@ -387,7 +430,7 @@ onMounted(() => {
 
     .sidebar-item-box {
         width: 100%;
-        height: 475px;
+        height: 350px;
         text-align: center;
         overflow: auto;
     }
@@ -413,6 +456,26 @@ onMounted(() => {
         &.active {
             background-color: #ffffff26;
         }
+    }
+}
+
+@keyframes showHomeSidebarLeft {
+    0% {
+        transform: translateX(-200%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes hideHomeSidebarLeft {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-200%);
     }
 }
 
@@ -530,7 +593,7 @@ onMounted(() => {
     .icon {
         width: var(--icon-size);
         height: var(--icon-size);
-        background-color: var(--color-white);
+        background-color: var(--color-gray);
         border-radius: 20px;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
         cursor: pointer;
